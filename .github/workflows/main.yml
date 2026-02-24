@@ -19,4 +19,4 @@ jobs:
           npx playwright install chromium --with-deps
 
       - name: Run Scraper for 24f2007525@ds.study.iitm.ac.in
-        run: node scrape.js
+        run: node scrabe.js
