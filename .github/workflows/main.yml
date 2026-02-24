@@ -18,5 +18,5 @@ jobs:
           npm install playwright
           npx playwright install chromium --with-deps
 
-      - name: Run Scraper for 24f2007525@ds.study.iitm.ac.in
+      - name: Scrape QA Reports for 24f2007525@ds.study.iitm.ac.in
         run: node scrabe.js
