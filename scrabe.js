@@ -10,21 +10,32 @@ const { chromium } = require('playwright');
 
   for (const seed of seeds) {
     const url = `https://sanand0.github.io/tdsdata/js_table/?seed={seed}`;
-    await page.goto(url);
-    
-    // Extract all numbers from table cells
-    const values = await page.$$eval('td', cells => 
-      cells.map(cell => {
-        const num = parseFloat(cell.innerText.replace(/,/g, ''));
-        return isNaN(num) ? 0 : num;
-      })
-    );
-    
-    const pageSum = values.reduce((a, b) => a + b, 0);
-    totalSum += pageSum;
-    console.log(`Seed ${seed}: Page Sum = ${pageSum}`);
+    try {
+      await page.goto(url, { waitUntil: 'networkidle' });
+
+      // Target the table specifically to avoid page headers/footers
+      const tableText = await page.locator('table').innerText();
+      
+      // Match all numbers (including decimals)
+      const numbers = tableText.match(/\d+(\.\d+)?/g);
+      
+      if (numbers) {
+        const pageSum = numbers
+          .map(n => parseFloat(n))
+          .reduce((sum, current) => sum + current, 0);
+          
+        totalSum += pageSum;
+        console.log(`Seed ${seed}: Found ${numbers.length} numbers, Page Sum = ${pageSum}`);
+      }
+    } catch (err) {
+      console.error(`Failed to process Seed ${seed}: ${err.message}`);
+    }
   }
 
-  console.log(`FINAL_TOTAL_SUM: ${totalSum}`);
+  // Formatting strictly for the automated log parser
+  console.log("----------------------------------------");
+  console.log(`TOTAL_SUM=${totalSum}`);
+  console.log("----------------------------------------");
+
   await browser.close();
 })();
